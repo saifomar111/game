@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>یاریا بازدانێ </title>
+    <title>یاریا بازدانێ</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
 
@@ -25,7 +25,6 @@
             height: 100vh; overflow: hidden;
         }
 
-        /* Animated Background Gradient */
         body::before {
             content: "";
             position: absolute; width: 200%; height: 200%;
@@ -49,7 +48,6 @@
 
         canvas { display: block; width: 100%; height: 100%; }
 
-        /* Modern HUD */
         .hud {
             position: absolute; top: 20px; left: 0; width: 100%;
             display: flex; justify-content: space-around;
@@ -64,7 +62,6 @@
         .stat-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
         .stat-value { font-family: 'Orbitron', sans-serif; font-size: 20px; color: var(--neon-blue); display: block; }
 
-        /* Modern Overlay */
         #ui-overlay {
             position: absolute; inset: 0;
             background: rgba(2, 2, 5, 0.9);
@@ -114,7 +111,6 @@
 
     <div id="ui-overlay">
         <h1 id="title">ژیری رزگار بکە</h1>
-        <p style="color: #666; letter-spacing: 2px; margin-top: 10px;"></p>
         <button class="btn-start" onclick="init()">INITIATE</button>
     </div>
 
@@ -132,19 +128,21 @@
 
     canvas.width = 900; canvas.height = 500;
 
-   const playerImg = new Image();
+    // --- پشکا گوهۆڕی بۆ چارەسەرکرنا کێشەیا وێنەی ل سەر GITHUB ---
+    const playerImg = new Image();
+    // ئەڤ زانیارییە دبیژیتە گیتھاب کو وێنەی نوو بکەت (Cache Busting)
+    playerImg.src = 'jer.png?v=' + Date.now(); 
 
-// بەم شێوەیە ناوی وێنەکە بنووسە بۆ ئەوەی کێشەی Cache نەمێنێت
-// فێڵێکی لۆجیکی بۆ ئەوەی گیتھاب ناچار بێت وێنەکە بار بکات
-playerImg.src = 'jer.png?v=' + Date.now(); 
+    playerImg.onerror = function() {
+        console.error("وێنە نەهاتە دیتن! دڵنیابە ناڤێ فایلی ل گیتھاب jer.png یە ب پیتا بچووک.");
+    };
+    // ---------------------------------------------------------
 
-playerImg.onload = () => {
-    console.log("وێنەکە بە سەرکەوتوویی بارکرا!");
-};
+    let state = { active: false, score: 0, high: localStorage.getItem('jer_ultra_high') || 0, speed: 7, frame: 0, level: 1, baseSpeed: 7 };
+    highEl.innerText = state.high;
 
-playerImg.onerror = () => {
-    console.error("وێنەکە نەدۆزرایەوە! دڵنیابە ناوی فایلەکە jer.png یە");
-};
+    const groundY = canvas.height - 70;
+
     let player = {
         x: 100, y: groundY - 90, w: 65, h: 90, dy: 0, jumps: 0,
         powerMode: null, powerTime: 0,
@@ -168,12 +166,12 @@ playerImg.onerror = () => {
                 ctx.shadowBlur = 20; ctx.shadowColor = "#facc15";
             }
 
+            // ئەگەر وێنە ئامادە بوو نیشانی بدە، ئەگەر نا ئیمۆجییەک نیشان بدە دا کو یاری تێک نەچیت
             if (playerImg.complete && playerImg.naturalWidth !== 0) {
                 ctx.drawImage(playerImg, this.x, this.y, this.w, this.h);
             } else {
-                ctx.fillStyle = '#00f2fe';
-                ctx.shadowBlur = 15; ctx.shadowColor = '#00f2fe';
-                ctx.fillRect(this.x, this.y, this.w, this.h);
+                ctx.font = "60px serif";
+                ctx.fillText("🏃", this.x, this.y + this.h - 10);
             }
             ctx.restore();
         },
@@ -201,7 +199,6 @@ playerImg.onerror = () => {
             ctx.fillStyle = this.glow;
             ctx.shadowBlur = 15; ctx.shadowColor = this.glow;
             ctx.fillRect(this.x, this.y, this.w, this.h);
-            // Modern detail: Neon line
             ctx.strokeStyle = "#fff"; ctx.lineWidth = 2;
             ctx.strokeRect(this.x + 5, this.y + 5, this.w - 10, this.h - 10);
             ctx.restore();
@@ -236,7 +233,6 @@ playerImg.onerror = () => {
         if (!state.active) return;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         
-        // Dynamic Grid Ground
         ctx.strokeStyle = 'rgba(0, 242, 254, 0.1)'; ctx.lineWidth = 1;
         for(let i=0; i<canvas.width; i+=50) {
             ctx.beginPath(); ctx.moveTo(i - (state.frame*2 % 50), groundY); ctx.lineTo(i - (state.frame*2 % 50), canvas.height); ctx.stroke();
